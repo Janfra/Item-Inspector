@@ -76,7 +76,7 @@ public class AABB
             return false;
         }
 
-        IntersectionPoint = MyMathsLibrary.Lerp(StartPoint, EndPoint, Lowest);
+        IntersectionPoint = MyVector3.Lerp(StartPoint, EndPoint, Lowest);
         return true;
     }
 
