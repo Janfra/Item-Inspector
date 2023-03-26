@@ -24,15 +24,25 @@ public class MyTransform : MonoBehaviour
     [Header("Config")]
     [SerializeField]
     private MyVector3 scale = MyVector3.One;
+    public MyVector3 Scale => scale;
+
     [SerializeField]
     private MyVector3 rotation;
+    public MyVector3 Rotation => rotation;
+
     [SerializeField]
     private MyVector3 translate;
+    public MyVector3 Position => translate;
 
     private void Awake()
     {
         GetModelVertices();
         SetValues(scale, rotation, translate);
+    }
+
+    private void OnEnable()
+    {
+        OnTranslated?.Invoke(translate);
     }
 
     private void OnValidate()
@@ -196,10 +206,6 @@ public class MyTransform : MonoBehaviour
 
         MF.sharedMesh.vertices = newVertices.ToArray();
     }
-
-    #region 
-
-    #endregion
 
     #region Testing
 

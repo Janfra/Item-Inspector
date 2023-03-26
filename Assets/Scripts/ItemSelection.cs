@@ -1,12 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class ItemSelection : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField]
-    Camera cam;
-    Item selectedItem;
+    private Camera cam;
+    [SerializeField]
+    Pedestal pedestal;
+
+    [SerializeField]
+    private TextMeshProUGUI itemSelectedUI;
+    [SerializeField]
+    private TextMeshProUGUI objectHoveredUI;
+
+    private Item selectedItem;
 
     private void Awake()
     {
@@ -14,26 +24,61 @@ public class ItemSelection : MonoBehaviour
         {
             cam = Camera;
         }
+
+        if(objectHoveredUI == null)
+        {
+            Debug.LogError("No text set to the hovered");
+        }
+
+        if(pedestal == null)
+        {
+            Debug.LogError("No pedestal set to selection");
+        }
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit Hit, Mathf.Infinity))
         {
-            if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit Hit, Mathf.Infinity))
+            SetHoveredName(Hit.collider.name);
+            if (Input.GetMouseButtonDown(0))
             {
                 if (Hit.collider.TryGetComponent(out Item Item))
                 {
-                    Debug.Log("Selected item");
-                    selectedItem = Item;
-                }
-                else if (selectedItem != null && Hit.collider.TryGetComponent(out Pedestal pedestal))
-                {
-                    Debug.Log("Selected pedestal to move item to");
-                    selectedItem.MoveToPosition(pedestal.GetPlacingPosition());
-                    selectedItem = null;
+                    if(Item != selectedItem)
+                    {
+                        SetSelectedItem(Item);
+                    }
                 }
             }
-        }   
+        }
+        else
+        {
+            SetHoveredName("");
+        }
+    }
+
+    private void MoveToPedestal()
+    {
+        Debug.Log("Selected pedestal to move item to");
+        selectedItem.MoveToPosition(pedestal.GetPlacingPosition());
+    }
+
+    private void SetSelectedItem(Item Item)
+    {
+        Debug.Log("Selected item");
+        selectedItem = Item;
+        SetItemName(Item.name);
+        MoveToPedestal();
+    }
+
+    private void SetHoveredName(string Name)
+    {
+        objectHoveredUI.text = Name;
+    }
+
+    private void SetItemName(string Name)
+    {
+        itemSelectedUI.text = Name;
     }
 }

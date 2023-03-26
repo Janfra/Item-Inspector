@@ -5,10 +5,15 @@ using UnityEngine;
 
 public class Item : MonoBehaviour, IMyColliderUpdate
 {
+    [Header("Config")]
     [SerializeField]
-    MyTransform myTransform;
+    private float movingDuration = 1f;
+
+    [Header("References")]
     [SerializeField]
-    BoxCollider boxCollider;
+    private MyTransform myTransform;
+    [SerializeField]
+    private BoxCollider boxCollider;
 
     private void Awake()
     {
@@ -18,8 +23,24 @@ public class Item : MonoBehaviour, IMyColliderUpdate
 
     public void MoveToPosition(MyVector3 Position)
     {
-        Debug.Log(Position);
-        myTransform.SetPosition(Position);
+        StartCoroutine(StartMovingTo(Position));
+    }
+
+    private IEnumerator StartMovingTo(MyVector3 TargetPosition)
+    {
+        float t = 0f;
+        float progress = 0f;
+        MyVector3 initialPosition = myTransform.Position;
+
+        while (progress != 1)
+        {
+            t += Time.deltaTime;
+            progress = MyMathsLibrary.GetNormalized(0, Mathf.Abs(movingDuration), t);
+            myTransform.SetPosition(MyVector3.Lerp(initialPosition, TargetPosition, progress));
+            yield return null; 
+        }
+
+        yield return null; 
     }
 
     public void UpdateColliderCentre(MyVector3 transformPosition)

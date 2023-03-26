@@ -202,6 +202,19 @@ namespace MyMathsComponents
 
             return rv;
         }
+
+        /// <summary>
+        /// Returns value normalized in between the min and max values.
+        /// </summary>
+        /// <param name="min">Min value of the dataset</param>
+        /// <param name="max">Max value of the dataset</param>
+        /// <param name="value">Value to normalize</param>
+        /// <returns>Value in between 0 and 1</returns>
+        public static float GetNormalized(float min, float max, float value)
+        {
+            value = Mathf.Clamp(value, min, max);
+            return (value - min) / (max - min); 
+        }
     }
 
     public class Matrix4By4

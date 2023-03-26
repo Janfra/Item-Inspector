@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using MyMathsComponents;
 
-public class Pedestal : MonoBehaviour
+public class Pedestal : MonoBehaviour, IMyColliderUpdate
 {
+    [Header("Config")]
+    [SerializeField]
+    private CapsuleCollider capsuleCollider;
+    [SerializeField]
+    private MyTransform myTransform;
+
     private BoundingCapsule myCapsule;
     private const float ITEM_DISTANCE = 1f;
 
@@ -14,6 +20,8 @@ public class Pedestal : MonoBehaviour
         {
             Debug.Log("Capsule created");
             myCapsule = new BoundingCapsule(new MyVector3(transform.position), unityCapsule.radius, unityCapsule.height);
+            capsuleCollider = unityCapsule;
+            myTransform.OnTranslated += UpdateColliderCentre;
         }
     }
 
@@ -30,5 +38,11 @@ public class Pedestal : MonoBehaviour
         {
             myCapsule.OnGizmos();
         }
+    }
+
+    public void UpdateColliderCentre(MyVector3 transformPosition)
+    {
+        capsuleCollider.center = transformPosition.ConvertToUnityVector();
+        myCapsule.SetHeight(transformPosition, capsuleCollider.height);
     }
 }
