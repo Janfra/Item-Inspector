@@ -35,7 +35,7 @@ public class Item : MonoBehaviour, IMyColliderUpdate
         while (progress != 1)
         {
             t += Time.deltaTime;
-            progress = MyMathsLibrary.GetNormalized(0, Mathf.Abs(movingDuration), t);
+            progress = MyMathsLibrary.EaseInDecimal(t, Mathf.Abs(movingDuration));
             myTransform.SetPosition(MyVector3.Lerp(initialPosition, TargetPosition, progress));
             yield return null; 
         }
