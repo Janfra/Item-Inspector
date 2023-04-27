@@ -11,32 +11,35 @@ public class Item : MonoBehaviour, IMyColliderUpdate
 
     [Header("References")]
     [SerializeField]
-    private MyTransform myTransform;
+    public MyTransform myTransform;
     [SerializeField]
     private BoxCollider boxCollider;
+    [SerializeField]
+    private static SettingsManager settingsManager;
 
     private void Awake()
     {
         boxCollider = GetComponent<BoxCollider>();
         myTransform.OnTranslated += UpdateColliderCentre;
+        settingsManager = SettingsManager.Instance;
     }
 
-    public void MoveToPosition(MyVector3 Position)
+    public void MoveToPosition(MyVector3 targetPosition)
     {
-        StartCoroutine(StartMovingTo(Position));
+        StartCoroutine(StartMovingTo(targetPosition));
     }
 
-    private IEnumerator StartMovingTo(MyVector3 TargetPosition)
+    private IEnumerator StartMovingTo(MyVector3 targetPosition)
     {
         float t = 0f;
-        float progress = 0f;
+        float alphaProgress = 0f;
         MyVector3 initialPosition = myTransform.Position;
 
-        while (progress != 1)
+        while (alphaProgress != 1)
         {
-            t += Time.deltaTime;
-            progress = MyMathsLibrary.EaseInDecimal(t, Mathf.Abs(movingDuration));
-            myTransform.SetPosition(MyVector3.Lerp(initialPosition, TargetPosition, progress));
+            t += settingsManager.GetTime();
+            alphaProgress = settingsManager.GetInterpolationAlpha(t, Mathf.Abs(movingDuration));
+            myTransform.SetPosition(MyVector3.Lerp(initialPosition, targetPosition, alphaProgress));
             yield return null; 
         }
 

@@ -223,6 +223,18 @@ namespace MyMathsComponents
 
         #region Easing Functions
 
+        /// Links for reference https://www.febucci.com/2018/08/easing-functions/ & http://gizma.com/easing/#cub1
+
+        /// <summary>
+        /// Flips decimal value for interpolation, going from 0 to 1, now to 1 to 0 or vice versa.
+        /// </summary>
+        /// <param name="t">Value being flip</param>
+        /// <returns>Flipped Value</returns>
+        private static float Flip(float t)
+        {
+            return 1 - t;
+        }
+
         /// <summary>
         /// Returns an ease in value in between the initial value and final value given by the duration.
         /// </summary>
@@ -249,16 +261,6 @@ namespace MyMathsComponents
             return Mathf.Clamp01(rv);
         }
 
-        /// <summary>
-        /// Flips decimal value for interpolation, going from 0 to 1, now to 1 to 0 or vice versa.
-        /// </summary>
-        /// <param name="t">Value being flip</param>
-        /// <returns>Flipped Value</returns>
-        private static float Flip(float t)
-        {
-            return 1 - t;
-        }
-
         public static float EaseOutDecimal(float t, float duration)
         {
             t /= duration;
@@ -266,12 +268,11 @@ namespace MyMathsComponents
             return rv;
         }
 
-        public static float EaseInOut(float t, float duration)
+        public static float EaseInOutDecimal(float t, float duration)
         {
             float rv = Lerp(EaseInDecimal(t, duration), EaseOutDecimal(t, duration), t / duration);
             return rv;
         }
-
 
         #endregion
     }

@@ -1,7 +1,9 @@
+using MyMathsComponents;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ItemSelection : MonoBehaviour
 {
@@ -15,8 +17,11 @@ public class ItemSelection : MonoBehaviour
     private TextMeshProUGUI itemSelectedUI;
     [SerializeField]
     private TextMeshProUGUI objectHoveredUI;
+    [SerializeField]
+    private Button deselectButton;
 
     private Item selectedItem;
+    private MyVector3 initialPosition;
 
     private void Awake()
     {
@@ -33,6 +38,11 @@ public class ItemSelection : MonoBehaviour
         if(pedestal == null)
         {
             Debug.LogError("No pedestal set to selection");
+        }
+
+        if(deselectButton == null)
+        {
+            Debug.LogError("No deselect button on item selection");
         }
     }
 
@@ -69,6 +79,7 @@ public class ItemSelection : MonoBehaviour
         Debug.Log("Selected item");
         selectedItem = Item;
         SetItemName(Item.name);
+        initialPosition = Item.myTransform.Position;
         MoveToPedestal();
     }
 
@@ -80,5 +91,12 @@ public class ItemSelection : MonoBehaviour
     private void SetItemName(string Name)
     {
         itemSelectedUI.text = Name;
+    }
+
+    public void DeselectItem()
+    {
+        selectedItem.MoveToPosition(initialPosition);
+        selectedItem = null;
+        SetItemName("");
     }
 }
