@@ -43,6 +43,7 @@ public class MyTransform : MonoBehaviour
     private void OnEnable()
     {
         OnTranslated?.Invoke(translate);
+        Debug.Log(GetRightAxis());
     }
 
     private void OnValidate()
@@ -59,7 +60,7 @@ public class MyTransform : MonoBehaviour
 
         if (MF.sharedMesh != null && modelVertices != null && modelVertices.Length != 0)
         {
-            SetValues(scale, rotation, translate);
+            SetValues(scale, GetRotationRadians(), translate);
         }
         else if (MF != null && sharedMesh == null)
         {
@@ -92,6 +93,21 @@ public class MyTransform : MonoBehaviour
     }
     
     #endregion
+
+    public MyVector3 GetRightAxis()
+    {
+        return MyMathsLibrary.LeftVectorCrossProduct(GetForwardAxis(), MyVector3.Up);
+    }
+
+    public MyVector3 GetForwardAxis()
+    {
+        return MyMathsLibrary.EulerRotationToDirection(GetRotationRadians());
+    }
+
+    public MyVector3 GetRotationRadians()
+    {
+        return new MyVector3(new MyVector3(MyMathsLibrary.DegreesToRadians(rotation.x % 360), MyMathsLibrary.DegreesToRadians(rotation.y % 360), MyMathsLibrary.DegreesToRadians(rotation.z % 360)));
+    }
 
     public void GetModelVertices()
     {
@@ -171,8 +187,12 @@ public class MyTransform : MonoBehaviour
 
     public void SetQuatRotation(float angle, MyVector3 axis)
     {
+        if(angle == 0)
+        {
+            angle = MyMathsLibrary.zeroToRadians;
+        }
         Quat rotation = new Quat(angle, axis);
-        SetVerticesQuad(rotation);
+        SetMeshVerticesQuaternion(rotation);
     }
 
     public void SetScale(MyVector3 newScale)
@@ -212,23 +232,24 @@ public class MyTransform : MonoBehaviour
 
         MF.sharedMesh.vertices = newVertices.ToArray();
     }
-
-    #region Testing
-
-    private void SetVerticesQuad(Quat quat)
+    private void SetMeshVerticesQuaternion(Quat quat)
     {
         List<Vector3> newVertices = new();
 
         foreach (MyVector3 vector in modelVertices)
         {
             Quat vertex = new Quat(vector);
-            var result = quat * vertex * quat.GetInversedQuat();
-            Vector3 vectorResult = new MyVector3(result.v).ConvertToUnityVector();
+            Quat result = quat * vertex * quat.GetInversedQuat();
+            MyVector4 worldVector = translateMatrix * result.v;
+
+            Vector3 vectorResult = new MyVector3(worldVector).ConvertToUnityVector();
             newVertices.Add(vectorResult);
         }
 
         MF.sharedMesh.vertices = newVertices.ToArray();
     }
+
+    #region Testing
 
     private void MatrixMultiplicationTest()
     {

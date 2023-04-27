@@ -19,18 +19,34 @@ namespace MyMathsComponents
         #region Static Shorthands / Global Basis Vectors
 
         public static MyVector3 zero { get { return new MyVector3(); } }
+        /// <summary>
+        /// 0, 0, 0
+        /// </summary>
         public static MyVector3 Zero => zero;
 
         private static MyVector3 right { get { return new MyVector3(1, 0, 0); } }
+
+        /// <summary>
+        /// 1, 0, 0
+        /// </summary>
         public static MyVector3 Right => right;
 
         private static MyVector3 up { get { return new MyVector3(0, 1, 0); } }
+        /// <summary>
+        /// 0, 1, 0
+        /// </summary>
         public static MyVector3 Up => up;
 
         private static MyVector3 forward { get { return new MyVector3(0, 0, 1); } }
+        /// <summary>
+        /// 0, 0, 1
+        /// </summary>
         public static MyVector3 Forward => forward;
 
         private static MyVector3 one { get { return new MyVector3(1, 1, 1); } }
+        /// <summary>
+        /// 1, 1, 1
+        /// </summary>
         public static MyVector3 One => one;
 
         #endregion

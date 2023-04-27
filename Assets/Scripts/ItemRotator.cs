@@ -9,10 +9,13 @@ public class ItemRotator : MonoBehaviour
     private MyVector3 eulerAngles;
     public MyTransform selectedObjectTransform;
 
+    [SerializeField]
+    private MyVector3 axis;
+
     private void Update()
     {
         if (selectedObjectTransform == null) return;
 
-        selectedObjectTransform.SetQuatRotation(eulerAngles.x, MyVector3.Right);
+        selectedObjectTransform.SetQuatRotation(eulerAngles.x, axis);
     }
 }
