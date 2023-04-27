@@ -12,6 +12,8 @@ public class ItemSelection : MonoBehaviour
     private Camera cam;
     [SerializeField]
     Pedestal pedestal;
+    [SerializeField]
+    ItemRotator itemRotator;
 
     [SerializeField]
     private TextMeshProUGUI itemSelectedUI;
@@ -44,6 +46,11 @@ public class ItemSelection : MonoBehaviour
         {
             Debug.LogError("No deselect button on item selection");
         }
+
+        if(itemRotator == null)
+        {
+            Debug.LogError("No item rotator selected on item selection");
+        }
     }
 
     private void Update()
@@ -68,12 +75,6 @@ public class ItemSelection : MonoBehaviour
         }
     }
 
-    private void MoveToPedestal()
-    {
-        Debug.Log("Selected pedestal to move item to");
-        selectedItem.MoveToPosition(pedestal.GetPlacingPosition());
-    }
-
     private void SetSelectedItem(Item Item)
     {
         Debug.Log("Selected item");
@@ -81,6 +82,12 @@ public class ItemSelection : MonoBehaviour
         SetItemName(Item.name);
         initialPosition = Item.myTransform.Position;
         MoveToPedestal();
+    }
+
+    private void MoveToPedestal()
+    {
+        Debug.Log("Selected pedestal to move item to");
+        selectedItem.MoveToPosition(pedestal.GetPlacingPosition(), SetToInspect);
     }
 
     private void SetHoveredName(string Name)
@@ -95,8 +102,25 @@ public class ItemSelection : MonoBehaviour
 
     public void DeselectItem()
     {
-        selectedItem.MoveToPosition(initialPosition);
+        SwitchDeselectionInteractability();
+        itemRotator.selectedObjectTransform = null;
+        selectedItem.MoveToPosition(initialPosition, ClearSelectedItem);
+    }
+
+    private void ClearSelectedItem()
+    {
         selectedItem = null;
         SetItemName("");
+    }
+
+    private void SetToInspect()
+    {
+        SwitchDeselectionInteractability();
+        itemRotator.selectedObjectTransform = selectedItem.myTransform;
+    }
+
+    private void SwitchDeselectionInteractability()
+    {
+        deselectButton.interactable = !deselectButton.interactable;
     }
 }

@@ -1,4 +1,5 @@
 using MyMathsComponents;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,8 @@ public class Item : MonoBehaviour, IMyColliderUpdate
     [SerializeField]
     private static SettingsManager settingsManager;
 
+    private Action OnMovementFinished;
+
     private void Awake()
     {
         boxCollider = GetComponent<BoxCollider>();
@@ -24,8 +27,14 @@ public class Item : MonoBehaviour, IMyColliderUpdate
         settingsManager = SettingsManager.Instance;
     }
 
-    public void MoveToPosition(MyVector3 targetPosition)
+    public void MoveToPosition(MyVector3 targetPosition, Action onCompleted = null)
     {
+        if(OnMovementFinished != null)
+        {
+            Debug.LogWarning($"On movement finish action was interrupted and replaced in {gameObject.name}");
+        }
+
+        OnMovementFinished = onCompleted;
         StartCoroutine(StartMovingTo(targetPosition));
     }
 
@@ -43,6 +52,8 @@ public class Item : MonoBehaviour, IMyColliderUpdate
             yield return null; 
         }
 
+        OnMovementFinished?.Invoke();
+        OnMovementFinished = null;
         yield return null; 
     }
 

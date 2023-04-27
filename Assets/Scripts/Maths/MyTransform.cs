@@ -169,6 +169,12 @@ public class MyTransform : MonoBehaviour
         UpdateTransform();
     }
 
+    public void SetQuatRotation(float angle, MyVector3 axis)
+    {
+        Quat rotation = new Quat(angle, axis);
+        SetVerticesQuad(rotation);
+    }
+
     public void SetScale(MyVector3 newScale)
     {
         scale = newScale;
@@ -208,6 +214,21 @@ public class MyTransform : MonoBehaviour
     }
 
     #region Testing
+
+    private void SetVerticesQuad(Quat quat)
+    {
+        List<Vector3> newVertices = new();
+
+        foreach (MyVector3 vector in modelVertices)
+        {
+            Quat vertex = new Quat(vector);
+            var result = quat * vertex * quat.GetInversedQuat();
+            Vector3 vectorResult = new MyVector3(result.v).ConvertToUnityVector();
+            newVertices.Add(vectorResult);
+        }
+
+        MF.sharedMesh.vertices = newVertices.ToArray();
+    }
 
     private void MatrixMultiplicationTest()
     {

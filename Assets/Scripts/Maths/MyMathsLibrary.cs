@@ -263,15 +263,17 @@ namespace MyMathsComponents
 
         public static float EaseOutDecimal(float t, float duration)
         {
+            t = Mathf.Clamp(t, 0, duration);
             t /= duration;
             float rv = Flip(SquareValue(Flip(t)));
-            return rv;
+            return Mathf.Clamp01(rv);
         }
 
         public static float EaseInOutDecimal(float t, float duration)
         {
+            t = Mathf.Clamp(t, 0, duration);
             float rv = Lerp(EaseInDecimal(t, duration), EaseOutDecimal(t, duration), t / duration);
-            return rv;
+            return Mathf.Clamp01(rv);
         }
 
         #endregion
