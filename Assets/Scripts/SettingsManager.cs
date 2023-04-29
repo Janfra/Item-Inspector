@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MyMathsComponents;
+using TMPro;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -9,7 +10,11 @@ public class SettingsManager : MonoBehaviour
 
     [Header("Private Access")]
     private float timeScalar = 1f;
-    private EasingFunctions easingType = EasingFunctions.EaseInOut;
+    private EasingFunctions easingType = EasingFunctions.EaseIn;
+
+    [Header("UI References")]
+    [SerializeField]
+    private TMP_Dropdown easingOptionsDropdown;
 
     // Constant speed values
     private const float slowSpeed = 0.5f;
@@ -25,6 +30,24 @@ public class SettingsManager : MonoBehaviour
         else
         {
             Destroy(this);
+        }
+    }
+
+    private void Start()
+    {
+        if(easingOptionsDropdown != null && Instance == this)
+        {
+            ItemSelection.OnTransitionCompleted += SwitchDropdown;
+            ItemSelection.OnTransition += SwitchDropdown;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if(Instance == this)
+        {
+            ItemSelection.OnTransition -= SwitchDropdown;
+            ItemSelection.OnTransitionCompleted -= SwitchDropdown;
         }
     }
 
@@ -95,6 +118,17 @@ public class SettingsManager : MonoBehaviour
         }
     }
     
+    public void OnEasingTypeChanged(int value)
+    {
+        value = Mathf.Clamp(value, (int)EasingFunctions.EaseIn, (int)EasingFunctions.EaseInOut);
+        easingType = (EasingFunctions)value;
+    }
+
+    private void SwitchDropdown()
+    {
+        easingOptionsDropdown.interactable = !easingOptionsDropdown.interactable;
+    }
+
     private enum SpeedSettings
     {
         slow,

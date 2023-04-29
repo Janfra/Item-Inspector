@@ -18,6 +18,7 @@ public class Item : MonoBehaviour, IMyColliderUpdate
     [SerializeField]
     private static SettingsManager settingsManager;
 
+    // Calls action once movement is finished
     private Action OnMovementFinished;
 
     private void Awake()

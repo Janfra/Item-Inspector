@@ -1,4 +1,5 @@
 using MyMathsComponents;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -7,6 +8,9 @@ using UnityEngine.UI;
 
 public class ItemSelection : MonoBehaviour
 {
+    public static Action OnTransitionCompleted;
+    public static Action OnTransition;
+
     [Header("References")]
     [SerializeField]
     private Camera cam;
@@ -15,6 +19,7 @@ public class ItemSelection : MonoBehaviour
     [SerializeField]
     ItemRotator itemRotator;
 
+    [Header("UI References")]
     [SerializeField]
     private TextMeshProUGUI itemSelectedUI;
     [SerializeField]
@@ -22,6 +27,7 @@ public class ItemSelection : MonoBehaviour
     [SerializeField]
     private Button deselectButton;
 
+    [Header("Selected Item")]
     private Item selectedItem;
     private MyVector3 initialPosition;
 
@@ -75,6 +81,12 @@ public class ItemSelection : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        OnTransition = null;
+        OnTransitionCompleted = null;
+    }
+
     private void SetSelectedItem(Item Item)
     {
         Debug.Log("Selected item");
@@ -88,6 +100,7 @@ public class ItemSelection : MonoBehaviour
     {
         Debug.Log("Selected pedestal to move item to");
         selectedItem.MoveToPosition(pedestal.GetPlacingPosition(), SetToInspect);
+        OnTransition?.Invoke();
     }
 
     private void SetHoveredName(string Name)
@@ -105,18 +118,21 @@ public class ItemSelection : MonoBehaviour
         SwitchDeselectionInteractability();
         itemRotator.selectedObjectTransform = null;
         selectedItem.MoveToPosition(initialPosition, ClearSelectedItem);
+        OnTransition?.Invoke();
     }
 
     private void ClearSelectedItem()
     {
         selectedItem = null;
         SetItemName("");
+        OnTransitionCompleted?.Invoke();
     }
 
     private void SetToInspect()
     {
         SwitchDeselectionInteractability();
         itemRotator.selectedObjectTransform = selectedItem.myTransform;
+        OnTransitionCompleted?.Invoke();
     }
 
     private void SwitchDeselectionInteractability()
