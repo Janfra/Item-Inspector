@@ -144,6 +144,7 @@ public class SettingsManager : MonoBehaviour
     {
         value = Mathf.Clamp(value, (int)RotationType.Degrees, (int)RotationType.Quaternion);
         rotationType = (RotationType)value;
+        OnRotationTypeUpdated?.Invoke(rotationType);
         Debug.Log($"Set to {rotationType}");
     }
 

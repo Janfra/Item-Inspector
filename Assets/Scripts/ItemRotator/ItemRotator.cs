@@ -44,12 +44,10 @@ public class ItemRotator : MonoBehaviour
         {
             case SettingsManager.RotationType.Degrees:
                 currentRotator = degreeRotation;
-                currentRotator.SetRotationTarget(selectedObjectTransform);
                 break;
 
             case SettingsManager.RotationType.Quaternion:
                 currentRotator = quaternionRotation;
-                currentRotator.SetRotationTarget(selectedObjectTransform);
                 break;
 
             default:
@@ -61,7 +59,8 @@ public class ItemRotator : MonoBehaviour
     public void SetRotationTarget(MyTransform transform)
     {
         selectedObjectTransform = transform;
-        currentRotator.SetRotationTarget(transform);
+        degreeRotation.SetRotationTarget(transform);
+        quaternionRotation.SetRotationTarget(transform);
     }
 
     #region Button Functions

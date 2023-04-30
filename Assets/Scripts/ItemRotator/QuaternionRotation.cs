@@ -50,8 +50,14 @@ public class QuaternionRotation : IItemRotator
         }
     }
 
+    // QUATERNION NOT SELECTED FREEZES ROTATION
     public void SetSlerping(MyVector3 slerpTarget, MyVector3 slerpStart, bool isSlerping = true)
     {
+        if(transform == null)
+        {
+            return;
+        }
+
         this.slerpTarget = slerpTarget;
         this.slerpStart = slerpStart;
         this.isSlerping = isSlerping;
@@ -60,6 +66,11 @@ public class QuaternionRotation : IItemRotator
 
     public void SetSlerping(MyVector3 slerpTarget, bool isSlerping = true)
     {
+        if(transform == null)
+        {
+            return;
+        }
+
         slerpStart = transform.Rotation;
         this.slerpTarget = slerpTarget;
         this.isSlerping = isSlerping;

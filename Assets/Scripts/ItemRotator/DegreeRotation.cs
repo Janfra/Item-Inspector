@@ -2,16 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MyMathsComponents;
+using UnityEngine.EventSystems;
 
 [System.Serializable]
 public class DegreeRotation : IItemRotator
 {
     #region Euler Rotation
 
+    [Header("Helper UI")]
     [SerializeField]
-    private GameObject cursorMovementImage;
+    private BoundingCircle cursorHelper;
     [SerializeField]
-    private GameObject cursorMovementImageCenter;
+    private BoundingCircle cursorHelperBackground;
 
     [Header("Rotation degrees")]
     [SerializeField]
@@ -20,8 +22,11 @@ public class DegreeRotation : IItemRotator
     float yawRotation;
 
     private MyVector3 mouseInitialPos;
-    private const float ROTATION_DETECTION_THRESHOLD = 0.7f;
+    private const float ROTATION_DETECTION_THRESHOLD = 0.6f;
     private const float MAX_ROTATION_SPEED = 2f;
+    private const float ROTATION_SPEED_DISTANCE_SCALAR = 0.015f;
+
+    private bool isPointSelected;
 
     #endregion
     // NOTE: Y: Yaw, X: Pitch, Z: Roll
@@ -31,49 +36,74 @@ public class DegreeRotation : IItemRotator
     MyTransform transform;
     MyVector3 rotation = new MyVector3();
 
+    /// <summary>
+    /// Sets the rotation of the object as well as updating to match input
+    /// </summary>
     public void OnRotateUpdate()
     {
         transform.SetRotation(MyMathsLibrary.VectorDegreeValuesToRadians(rotation));
         SetRotation();
     }
+
+    /// <summary>
+    /// Sets the target to rotate
+    /// </summary>
+    /// <param name="transform"></param>
     public void SetRotationTarget(MyTransform transform)
     {
         this.transform = transform;
     }
 
+    /// <summary>
+    /// Checks to set the rotation of the object based on mouse input
+    /// </summary>
     private void SetRotation()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
         {
+            isPointSelected = true;
             SetMousePosition();
         }
-        else if (Input.GetMouseButton(0))
+        else if (Input.GetMouseButton(0) && isPointSelected)
         {
             RotateBasedOnMouseMovement();
-            UpdateRotation();
+            UpdateRotationEuler();
         }
         else
         {
-            cursorMovementImage.SetActive(false);
-            cursorMovementImageCenter.SetActive(false);
+            cursorHelper.gameObject.SetActive(false);
+            cursorHelperBackground.gameObject.SetActive(false);
+            isPointSelected = false;
         }
     }
 
-    private void UpdateRotation()
+    /// <summary>
+    /// Updates the euler angles for the rotation
+    /// </summary>
+    private void UpdateRotationEuler()
     {
         rotation.y = yawRotation;
         rotation.x = pitchRotation;
     }
 
+    /// <summary>
+    /// Sets the helper position
+    /// </summary>
     private void SetMousePosition()
     {
         mouseInitialPos = new MyVector3(Input.mousePosition);
-        cursorMovementImage.SetActive(true);
-        cursorMovementImage.transform.position = mouseInitialPos.ConvertToUnityVector();
-        cursorMovementImageCenter.SetActive(true);
-        cursorMovementImageCenter.transform.position = mouseInitialPos.ConvertToUnityVector();
+        cursorHelper.gameObject.SetActive(true);
+        cursorHelper.transform.position = mouseInitialPos.ConvertToUnityVector();
+        cursorHelper.centrePoint = new(mouseInitialPos);
+
+        cursorHelperBackground.gameObject.SetActive(true);
+        cursorHelperBackground.transform.position = mouseInitialPos.ConvertToUnityVector();
+        cursorHelperBackground.centrePoint = new(mouseInitialPos);
     }
 
+    /// <summary>
+    /// Rotates the object based on the movement of the cursor based on its initial position
+    /// </summary>
     private void RotateBasedOnMouseMovement()
     {
         // Get the direction that the mouse was moved from the point initialled clicked
@@ -85,7 +115,7 @@ public class DegreeRotation : IItemRotator
         float upDotProduct = MyVector3.VectorDotProduct(pointingVector, MyVector3.Up);
 
         // Speed the rotation based on how far the mouse position is now from the initial position
-        float distanceMultiplier = Mathf.Clamp(pointingVector.GetLenght() * 0.01f, 0, MAX_ROTATION_SPEED);
+        float distanceMultiplier = Mathf.Clamp(pointingVector.GetLenght() * ROTATION_SPEED_DISTANCE_SCALAR, 0, MAX_ROTATION_SPEED);
 
         // If the mouse was moved to the right or left by at least the threshold, rotate it in that direction
         if (Mathf.Abs(rightDotProduct) > ROTATION_DETECTION_THRESHOLD)
@@ -102,16 +132,31 @@ public class DegreeRotation : IItemRotator
         MoveCursorHelper(xDirectionOffset: rightDotProduct, yDirectionOffset: upDotProduct, distanceMultiplier: distanceMultiplier);
     }
 
+    /// <summary>
+    /// Updates the position of the mouse helper to represent the speed and direction of rotation
+    /// </summary>
+    /// <param name="xDirectionOffset"></param>
+    /// <param name="yDirectionOffset"></param>
+    /// <param name="distanceMultiplier"></param>
     private void MoveCursorHelper(float xDirectionOffset, float yDirectionOffset, float distanceMultiplier)
     {
-        // Up multiplier to make it more visible, could change to instead use normalization
-        distanceMultiplier += 1.7f * distanceMultiplier;
+        // Get direction of movement
+        MyVector2 direction = new MyVector2(xDirectionOffset, yDirectionOffset);
 
-        // From the mouse position set move it based on mouse movement to show the reference used to rotate
-        MyVector3 positionOffset = new MyVector3(xDirectionOffset * distanceMultiplier + mouseInitialPos.x, yDirectionOffset * distanceMultiplier + mouseInitialPos.y);
-        if (positionOffset.GetLenghtSq() > 0)
+        // Get perimeter of helper circles at direction
+        MyVector2 cursorHelperPerimeter = cursorHelper.GetPerimeterAtDirection(direction);
+        MyVector2 cursorHelperBackgroundPerimeter = cursorHelperBackground.GetPerimeterAtDirection(direction);
+
+        // Get the speed of rotation and use it to decide how close the helper is to the border
+        float rotationSpeed = MyMathsLibrary.GetNormalized(0, MAX_ROTATION_SPEED, distanceMultiplier);;
+        MyVector2 newPosition = MyVector2.Lerp(cursorHelperPerimeter, cursorHelperBackgroundPerimeter, rotationSpeed);
+
+        // Offset the radius to move to the perimeter and not be at the perimeter
+        newPosition -= direction * cursorHelper.radius;
+
+        if (newPosition.GetLenghtSq() > 0)
         {
-            cursorMovementImage.transform.position = positionOffset.ConvertToUnityVector();
+            cursorHelper.transform.position = newPosition.ConvertToUnityVector();
         }
     }
 }
