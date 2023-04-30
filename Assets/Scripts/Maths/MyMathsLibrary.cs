@@ -4,7 +4,7 @@ namespace MyMathsComponents
 {
     public static class MyMathsLibrary
     {
-        public const float zeroToRadians = 6.28318530718f;
+        public const float ZERO_IN_RADIANS = 6.28318530718f;
 
         public static float Vector2ToRadians(MyVector2 vector)
         {

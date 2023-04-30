@@ -106,7 +106,7 @@ public class MyTransform : MonoBehaviour
 
     public MyVector3 GetRotationRadians()
     {
-        return new MyVector3(new MyVector3(MyMathsLibrary.DegreesToRadians(rotation.x % 360), MyMathsLibrary.DegreesToRadians(rotation.y % 360), MyMathsLibrary.DegreesToRadians(rotation.z % 360)));
+        return MyMathsLibrary.VectorDegreeValuesToRadians(rotation);
     }
 
     public void GetModelVertices()
@@ -185,15 +185,91 @@ public class MyTransform : MonoBehaviour
         UpdateTransform();
     }
 
+    #region Quaternion Rotation
+
     public void SetQuatRotation(float angle, MyVector3 axis)
     {
         if(angle == 0)
         {
-            angle = MyMathsLibrary.zeroToRadians;
+            angle = MyMathsLibrary.ZERO_IN_RADIANS;
         }
+        axis = axis.NormalizeVector();
+
         Quat rotation = new Quat(angle, axis);
         SetMeshVerticesQuaternion(rotation);
     }
+
+    public void SetQuatRotation(MyVector3 eulerAngles, bool useMatrix = false)
+    {
+        Quat rotation = GetTotalEulerRotation(eulerAngles);
+        if (useMatrix)
+        {
+            rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(rotation);
+            UpdateTransform();
+            return;
+        }
+
+        SetMeshVerticesQuaternion(rotation);
+    }
+
+    public void Slerp(MyVector3 startAngles, MyVector3 endAngles, float t)
+    {
+        startAngles = Quat.GetValidEulerAngles(startAngles);
+        endAngles = Quat.GetValidEulerAngles(endAngles);
+
+        Quat startRotation = GetTotalEulerRotation(startAngles);
+        Quat endRotation = GetTotalEulerRotation(endAngles);
+
+        SetMeshVerticesQuaternion(Quat.Slerp(startRotation, endRotation, t));
+    }
+
+    /// <summary>
+    /// Returns the resulting quaternion rotation from the given euler angles
+    /// </summary>
+    /// <param name="eulerAngles"></param>
+    /// <param name="isNormalised"></param>
+    /// <returns></returns>
+    private Quat GetTotalEulerRotation(MyVector3 eulerAngles, bool isNormalised = true)
+    {
+        this.rotation = eulerAngles;
+
+        eulerAngles = Quat.GetValidEulerAngles(GetRotationRadians());
+
+        Quat xRotation = new Quat(eulerAngles.x, MyVector3.Right);
+        Quat yRotation = new Quat(eulerAngles.y, MyVector3.Up);
+        Quat zRotation = new Quat(eulerAngles.z, MyVector3.Forward);
+
+        Quat rotation = zRotation * yRotation * xRotation;
+        if (isNormalised)
+        {
+            rotation = rotation.NormalizeQuat();
+        }
+
+        return rotation;
+    }
+
+    private void SetMeshVerticesQuaternion(Quat quat)
+    {
+        quat = quat.NormalizeQuat();
+        List<Vector3> newVertices = new();
+        rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(quat);
+
+        // Debug.Log(quat.GetLenght());
+
+        foreach (MyVector3 vector in modelVertices)
+        {
+            Quat vectorToRotate = new Quat(vector);
+            Quat rotatedQuaternion = quat * vectorToRotate * quat.GetInversedQuat();
+            MyVector4 worldVector = translateMatrix * rotatedQuaternion.v;
+
+            Vector3 vectorResult = new MyVector3(worldVector).ConvertToUnityVector();
+            newVertices.Add(vectorResult);
+        }
+
+        MF.sharedMesh.vertices = newVertices.ToArray();
+    }
+
+    #endregion
 
     public void SetScale(MyVector3 newScale)
     {
@@ -227,22 +303,6 @@ public class MyTransform : MonoBehaviour
         {
             MyVector4 result = matrix * vector;
             Vector3 vectorResult = new MyVector3(result).ConvertToUnityVector();
-            newVertices.Add(vectorResult);
-        }
-
-        MF.sharedMesh.vertices = newVertices.ToArray();
-    }
-    private void SetMeshVerticesQuaternion(Quat quat)
-    {
-        List<Vector3> newVertices = new();
-
-        foreach (MyVector3 vector in modelVertices)
-        {
-            Quat vertex = new Quat(vector);
-            Quat result = quat * vertex * quat.GetInversedQuat();
-            MyVector4 worldVector = translateMatrix * result.v;
-
-            Vector3 vectorResult = new MyVector3(worldVector).ConvertToUnityVector();
             newVertices.Add(vectorResult);
         }
 

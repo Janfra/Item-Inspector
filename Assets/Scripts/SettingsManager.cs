@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using MyMathsComponents;
 using TMPro;
+using System;
 
 public class SettingsManager : MonoBehaviour
 {
     public static SettingsManager Instance;
+    public static Action<RotationType> OnRotationTypeUpdated;
 
     [Header("Private Access")]
     private float timeScalar = 1f;
     private EasingFunctions easingType = EasingFunctions.EaseIn;
+    private RotationType rotationType = RotationType.Degrees;
 
     [Header("UI References")]
     [SerializeField]
@@ -48,6 +51,7 @@ public class SettingsManager : MonoBehaviour
         {
             ItemSelection.OnTransition -= SwitchDropdown;
             ItemSelection.OnTransitionCompleted -= SwitchDropdown;
+            OnRotationTypeUpdated = null;
         }
     }
 
@@ -134,6 +138,19 @@ public class SettingsManager : MonoBehaviour
         slow,
         normal,
         fast
+    }
+    
+    public void SetRotationType(int value)
+    {
+        value = Mathf.Clamp(value, (int)RotationType.Degrees, (int)RotationType.Quaternion);
+        rotationType = (RotationType)value;
+        Debug.Log($"Set to {rotationType}");
+    }
+
+    public enum RotationType
+    {
+        Degrees,
+        Quaternion,
     }
 
     #endregion

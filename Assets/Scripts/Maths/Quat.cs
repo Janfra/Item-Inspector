@@ -42,13 +42,40 @@ namespace MyMathsComponents
         {
             Quat rv = new Quat();
 
-            rv.w = rhs.w * lhs.w - MyVector3.VectorDotProduct(rhs.v, lhs.v);
-            rv.v = rhs.w * lhs.v + lhs.w * rhs.v + MyMathsLibrary.LeftVectorCrossProduct(lhs.v, rhs.v);
+            rv.w = lhs.w * rhs.w - MyVector3.VectorDotProduct(rhs.v, lhs.v);
+            rv.v = rhs.w * lhs.v + lhs.w * rhs.v + MyMathsLibrary.VectorCrossProduct(lhs.v, rhs.v);
 
             return rv;
         }
 
         #endregion
+
+        /// <summary>
+        /// Turns any values that are 0 to a positive equivalent to avoid the model disappearing
+        /// </summary>
+        /// <param name="eulerAngles"></param>
+        /// <returns></returns>
+        public static MyVector3 GetValidEulerAngles(MyVector3 eulerAngles)
+        {
+            MyVector3 rv = new MyVector3(eulerAngles);
+
+            if (eulerAngles.x == 0)
+            {
+                rv.x = MyMathsLibrary.ZERO_IN_RADIANS;
+            }
+
+            if (eulerAngles.y == 0)
+            {
+                rv.y = MyMathsLibrary.ZERO_IN_RADIANS;
+            }
+
+            if (eulerAngles.z == 0)
+            {
+                rv.z = MyMathsLibrary.ZERO_IN_RADIANS;
+            }
+
+            return rv;
+        }
 
         /// <summary>
         /// Returns the magnitude / lenght of the quaternion squared.
@@ -129,6 +156,7 @@ namespace MyMathsComponents
             t = Mathf.Clamp01(t);
 
             Quat d = r * q.GetInversedQuat();
+            d = d.NormalizeQuat();
             MyVector4 axisAngle = d.GetAxisAngle();
             Quat dT = new Quat(axisAngle.w * t, new MyVector3(axisAngle));
 

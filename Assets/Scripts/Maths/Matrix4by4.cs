@@ -383,6 +383,8 @@ namespace MyMathsComponents
         public static Matrix4By4 QuaternionToRotationMatrix(Quat quat)
         {
             Matrix4By4 rv = new Matrix4By4();
+
+            quat = quat.NormalizeQuat();
             MyVector3 v = quat.v;
 
             rv.values[0, 0] = 1 - 2 * (v.y * v.y + v.z * v.z);
@@ -397,7 +399,21 @@ namespace MyMathsComponents
             rv.values[1, 2] = 2 * (v.y * v.z + v.x * quat.w);
             rv.values[1, 2] = 1 - 2 * (v.x * v.x + v.y * v.y);
 
+            rv = rv.RotationInverse();
+
             return rv;
+
+            //rv.values[0, 0] = 1 - 2 * (v.y * v.y - v.z * v.z);
+            //rv.values[1, 0] = 2 * (v.x * v.y + v.z * quat.w);
+            //rv.values[2, 0] = 2 * (v.x * v.z - v.y * quat.w);
+
+            //rv.values[0, 1] = 2 * (v.x * v.y - v.z * quat.w);
+            //rv.values[1, 1] = 1 - 2 * (v.x * v.x - v.z * v.z);
+            //rv.values[2, 1] = 2 * (v.y * v.z + v.x * quat.w);
+
+            //rv.values[0, 2] = 2 * (v.x * v.z + v.y * quat.w);
+            //rv.values[1, 2] = 2 * (v.y * v.z - v.x * quat.w);
+            //rv.values[1, 2] = 1 - 2 * (v.x * v.x - v.y * v.y);
         }
 
         #endregion

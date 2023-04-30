@@ -116,7 +116,7 @@ public class ItemSelection : MonoBehaviour
     public void DeselectItem()
     {
         SwitchDeselectionInteractability();
-        itemRotator.selectedObjectTransform = null;
+        itemRotator.SetRotationTarget(null);
         selectedItem.MoveToPosition(initialPosition, ClearSelectedItem);
         OnTransition?.Invoke();
     }
@@ -131,7 +131,7 @@ public class ItemSelection : MonoBehaviour
     private void SetToInspect()
     {
         SwitchDeselectionInteractability();
-        itemRotator.selectedObjectTransform = selectedItem.myTransform;
+        itemRotator.SetRotationTarget(selectedItem.myTransform);
         OnTransitionCompleted?.Invoke();
     }
 
