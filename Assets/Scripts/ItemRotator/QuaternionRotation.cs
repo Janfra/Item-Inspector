@@ -29,7 +29,7 @@ public class QuaternionRotation : IItemRotator
 
     public void OnRotateUpdate()
     {
-        transform.SetQuatRotation(eulerAngles);
+        transform.SetQuatRotation(eulerAngles, true);
     }
 
     public void SetRotationTarget(MyTransform transform)

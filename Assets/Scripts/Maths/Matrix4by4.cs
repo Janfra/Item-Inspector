@@ -386,23 +386,51 @@ namespace MyMathsComponents
 
             quat = quat.NormalizeQuat();
             MyVector3 v = quat.v;
+            float wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
 
-            rv.values[0, 0] = 1 - 2 * (v.y * v.y + v.z * v.z);
-            rv.values[1, 0] = 2 * (v.x * v.y - v.z * quat.w);
-            rv.values[2, 0] = 2 * (v.x * v.z + v.y * quat.w);
+            x2 = v.x + v.x;
+            y2 = v.y + v.y;
+            z2 = v.z + v.z;
+            xx = v.x * x2;
+            xy = v.x * y2;
+            xz = v.x * z2;
+            yy = v.y * y2;
+            yz = v.y * z2;
+            zz = v.z * z2;
+            wx = quat.w * x2;
+            wy = quat.w * y2;
+            wz = quat.w * z2;
 
-            rv.values[0, 1] = 2 * (v.x * v.y + v.z * quat.w);
-            rv.values[1, 1] = 1 - 2 * (v.x * v.x + v.z * v.z);
-            rv.values[2, 1] = 2 * (v.y * v.z - v.x * quat.w);
+            rv.values[0, 0] = 1.0f - (yy + zz);
+            rv.values[1, 0] = xy - wz;
+            rv.values[2, 0] = xz + wy;
 
-            rv.values[0, 2] = 2 * (v.x * v.z - v.y * quat.w);
-            rv.values[1, 2] = 2 * (v.y * v.z + v.x * quat.w);
-            rv.values[1, 2] = 1 - 2 * (v.x * v.x + v.y * v.y);
+            rv.values[0, 1] = xy + wz;
+            rv.values[1, 1] = 1.0f - (xx + zz);
+            rv.values[2, 1] = yz - wz;
 
-            rv = rv.RotationInverse();
+            rv.values[0, 2] = xz - wy;
+            rv.values[1, 2] = yz - wx;
+            rv.values[1, 2] = 1.0f - (xx + yy);
+
+            // rv = rv.RotationInverse();
 
             return rv;
 
+            // OpenGL version
+            //rv.values[0, 0] = 1 - 2 * (v.y * v.y + v.z * v.z);
+            //rv.values[1, 0] = 2 * (v.x * v.y - v.z * quat.w);
+            //rv.values[2, 0] = 2 * (v.x * v.z + v.y * quat.w);
+
+            //rv.values[0, 1] = 2 * (v.x * v.y + v.z * quat.w);
+            //rv.values[1, 1] = 1 - 2 * (v.x * v.x + v.z * v.z);
+            //rv.values[2, 1] = 2 * (v.y * v.z - v.x * quat.w);
+
+            //rv.values[0, 2] = 2 * (v.x * v.z - v.y * quat.w);
+            //rv.values[1, 2] = 2 * (v.y * v.z + v.x * quat.w);
+            //rv.values[1, 2] = 1 - 2 * (v.x * v.x + v.y * v.y);
+
+            // Online Version
             //rv.values[0, 0] = 1 - 2 * (v.y * v.y - v.z * v.z);
             //rv.values[1, 0] = 2 * (v.x * v.y + v.z * quat.w);
             //rv.values[2, 0] = 2 * (v.x * v.z - v.y * quat.w);
@@ -414,6 +442,20 @@ namespace MyMathsComponents
             //rv.values[0, 2] = 2 * (v.x * v.z + v.y * quat.w);
             //rv.values[1, 2] = 2 * (v.y * v.z - v.x * quat.w);
             //rv.values[1, 2] = 1 - 2 * (v.x * v.x - v.y * v.y);
+
+            // Online V.2
+            //rv.values[0, 0] = 1.0f - 2.0f * v.y * v.y - 2.0f * v.z * v.z;
+            //rv.values[1, 0] = 2.0f * v.x * v.y - 2.0f * v.z * quat.w;
+            //rv.values[2, 0] = 2.0f * v.x * v.z + 2.0f * v.y * quat.w;
+
+            //rv.values[0, 1] = 2.0f * v.x * v.y + 2.0f * v.z * quat.w;
+            //rv.values[1, 1] = 1.0f - 2.0f * v.x * v.x - 2.0f * v.z * v.z;
+            //rv.values[2, 1] = 2.0f * v.y * v.z - 2.0f * v.x * quat.w;
+
+            //rv.values[0, 2] = 2.0f * v.x * v.z - 2.0f * v.y * quat.w;
+            //rv.values[1, 2] = 2.0f * v.y * v.z + 2.0f * v.x * quat.w;
+            //rv.values[1, 2] = 1.0f - 2.0f * v.x * v.x - 2.0f * v.y * v.y;
+
         }
 
         #endregion

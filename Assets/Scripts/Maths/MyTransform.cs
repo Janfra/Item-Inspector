@@ -159,6 +159,8 @@ public class MyTransform : MonoBehaviour
     public void SetRotation(MyVector3 rotationAngles)
     {
         rotation = rotationAngles;
+
+        // Pitch and roll first then yaw
         Matrix4By4 rollMatrix = new Matrix4By4
         (
             new MyVector3(Mathf.Cos(rotationAngles.z), Mathf.Sin(rotationAngles.z), 0),
@@ -239,6 +241,7 @@ public class MyTransform : MonoBehaviour
         Quat yRotation = new Quat(eulerAngles.y, MyVector3.Up);
         Quat zRotation = new Quat(eulerAngles.z, MyVector3.Forward);
 
+        // Check
         Quat rotation = zRotation * yRotation * xRotation;
         if (isNormalised)
         {

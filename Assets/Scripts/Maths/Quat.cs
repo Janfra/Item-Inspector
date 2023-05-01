@@ -78,6 +78,38 @@ namespace MyMathsComponents
         }
 
         /// <summary>
+        /// Returns the resulting quaternion rotation from the given euler angles
+        /// </summary>
+        /// <param name="eulerAngles"></param>
+        /// <param name="isNormalised"></param>
+        /// <returns></returns>
+        public static Quat EulerToQuaternion(MyVector3 eulerAngles, bool isNormalised = true)
+        {
+            Quat rv = new Quat();
+
+            eulerAngles = GetValidEulerAngles(MyMathsLibrary.VectorDegreeValuesToRadians(eulerAngles));
+
+            float cr, cp, cy, sr, sp, sy, cpcy, spsy;
+
+            cr = Mathf.Cos(eulerAngles.z / 2);
+            cp = Mathf.Cos(eulerAngles.x / 2);
+            cy = Mathf.Cos(eulerAngles.y / 2);
+            sr = Mathf.Sin(eulerAngles.z / 2);
+            sp = Mathf.Sin(eulerAngles.x / 2);
+            sy = Mathf.Sin(eulerAngles.y / 2);
+
+            cpcy = cp * cy;
+            spsy = sp * sy;
+
+            rv.w = cr * cpcy + sr * spsy;
+            rv.v.x = sr * cpcy - cr * spsy;
+            rv.v.y = cr * sp * cy + sr * cp * sy;
+            rv.v.z = cr * cp * sy - sr * sp * cy;
+
+            return rv;
+        }
+
+        /// <summary>
         /// Returns the magnitude / lenght of the quaternion squared.
         /// </summary>
         /// <returns></returns>
