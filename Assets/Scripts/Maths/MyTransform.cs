@@ -34,6 +34,9 @@ public class MyTransform : MonoBehaviour
     private MyVector3 translate;
     public MyVector3 Position => translate;
 
+    private Quat slerpStart;
+    private Quat slerpTarget;
+
     private void Awake()
     {
         GetModelVertices();
@@ -214,6 +217,19 @@ public class MyTransform : MonoBehaviour
         SetMeshVerticesQuaternion(rotation);
     }
 
+    public void SetSlerp(Quat slerpStart, Quat slerpTarget)
+    {
+        this.slerpStart = slerpStart;
+        this.slerpTarget = slerpTarget;
+    }
+
+    public void SimpleSlerp(float t)
+    {
+        Debug.Log(t);
+        rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(Quat.Slerp(slerpStart, slerpTarget, t));
+        UpdateTransform();
+    }
+
     public void Slerp(MyVector3 startAngles, MyVector3 endAngles, float t)
     {
         startAngles = Quat.GetValidEulerAngles(startAngles);
@@ -222,7 +238,8 @@ public class MyTransform : MonoBehaviour
         Quat startRotation = GetTotalEulerRotation(startAngles);
         Quat endRotation = GetTotalEulerRotation(endAngles);
 
-        SetMeshVerticesQuaternion(Quat.Slerp(startRotation, endRotation, t));
+        rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(Quat.Slerp(startRotation, endRotation, t));
+        UpdateTransform();
     }
 
     /// <summary>

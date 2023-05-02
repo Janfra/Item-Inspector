@@ -1,5 +1,6 @@
 using UnityEngine;
 using MyMathsComponents;
+using System.Runtime.CompilerServices;
 
 [System.Serializable]
 public class QuaternionRotation : IItemRotator
@@ -35,6 +36,28 @@ public class QuaternionRotation : IItemRotator
     public void SetRotationTarget(MyTransform transform)
     {
         this.transform = transform;
+    }
+
+    public void SetSlerp()
+    {
+        Quat start = new Quat(slerpStart.x, MyVector3.Right);
+        Quat target = new Quat(slerpTarget.x, MyVector3.Right);
+
+        transform.SetSlerp(start, target);
+        isSlerping = true;
+    }
+
+    public void SimpleSlerp()
+    {
+        slerpTime += SettingsManager.Instance.GetTime();
+        slerpTime = Mathf.Clamp01(slerpTime);
+
+        transform.SimpleSlerp(slerpTime);
+        if(slerpTime == 1)
+        {
+            isSlerping = false;
+            slerpTime = 0.0f;
+        }
     }
 
     public void SlerpObject()

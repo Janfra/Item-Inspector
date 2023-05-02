@@ -36,6 +36,10 @@ public class ItemRotator : MonoBehaviour
         {
             currentRotator.OnRotateUpdate();
         }
+        else
+        {
+            quaternionRotation.SimpleSlerp();
+        }
     }
 
     private void UpdateRotator(SettingsManager.RotationType rotationType)
@@ -67,7 +71,9 @@ public class ItemRotator : MonoBehaviour
 
     public void SetItemOrientationToTop()
     {
-        quaternionRotation.SetSlerping((MyVector3.Up * 180) * -1);
+        // quaternionRotation.SetSlerping((MyVector3.Up * 180) * -1);
+
+        quaternionRotation.SetSlerp();
     }
 
     #endregion

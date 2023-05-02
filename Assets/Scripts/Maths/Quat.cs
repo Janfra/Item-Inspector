@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace MyMathsComponents
 {
+    [System.Serializable]
     public class Quat
     {
         // Quat identity Multiply: 1, 0, 0, 0. Addition: 0, 0, 0, 0
@@ -17,6 +18,12 @@ namespace MyMathsComponents
         {
             w = 0.0f;
             v = new MyVector3();
+        }
+
+        public Quat(float wValue)
+        {
+            w = wValue;
+            v = new MyVector3(MyMathsLibrary.ZERO_IN_RADIANS, MyMathsLibrary.ZERO_IN_RADIANS, MyMathsLibrary.ZERO_IN_RADIANS);
         }
 
         public Quat(float Angle, MyVector3 Axis)
@@ -35,6 +42,9 @@ namespace MyMathsComponents
         }
 
         #endregion
+
+        public static Quat IdentityMultiplication { get { return new Quat(1.0f); } }
+        public static Quat IdentityAddition { get { return new Quat(); } }
 
         #region Operators
 
