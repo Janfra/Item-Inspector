@@ -8,6 +8,8 @@ using System.Runtime.CompilerServices;
 public class MyTransform : MonoBehaviour
 {
     public event Action<MyVector3> OnTranslated;
+    public event Action<MyVector3> OnRotated;
+    public event Action<MyVector3> OnScaled;
 
     private MyVector3[] modelVertices;
     private Matrix4By4 myTransformMatrix = new Matrix4By4();
@@ -162,6 +164,7 @@ public class MyTransform : MonoBehaviour
     public void SetRotation(MyVector3 rotationAngles)
     {
         rotation = rotationAngles;
+        OnRotated?.Invoke(rotation);
 
         // Pitch and roll first then yaw
         Matrix4By4 rollMatrix = new Matrix4By4
@@ -185,14 +188,14 @@ public class MyTransform : MonoBehaviour
             new MyVector3(Mathf.Sin(rotationAngles.y), 0, Mathf.Cos(rotationAngles.y)),
             MyVector3.zero
         );
-
+        
         rotationMatrix = yawMatrix * (pitchMatrix * rollMatrix);
         UpdateTransform();
     }
 
     #region Quaternion Rotation
 
-    public void SetQuatRotation(float angle, MyVector3 axis)
+    public void SetQuatRotation(float angle, MyVector3 axis, bool useMatrix = false)
     {
         if(angle == 0)
         {
@@ -201,12 +204,6 @@ public class MyTransform : MonoBehaviour
         axis = axis.NormalizeVector();
 
         Quat rotation = new Quat(angle, axis);
-        SetMeshVerticesQuaternion(rotation);
-    }
-
-    public void SetQuatRotation(MyVector3 eulerAngles, bool useMatrix = false)
-    {
-        Quat rotation = GetTotalEulerRotation(eulerAngles);
         if (useMatrix)
         {
             rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(rotation);
@@ -217,10 +214,29 @@ public class MyTransform : MonoBehaviour
         SetMeshVerticesQuaternion(rotation);
     }
 
-    public void SetSlerp(Quat slerpStart, Quat slerpTarget)
+    public void SetQuatRotation(MyVector3 eulerAngles, bool useMatrix = false)
+    {
+        Quat rotation = Quat.EulerToQuaternion(eulerAngles);
+        this.rotation = eulerAngles;
+        OnRotated?.Invoke(this.rotation);
+
+        if (useMatrix)
+        {
+            rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(rotation);
+            UpdateTransform();
+            return;
+        }
+
+        SetMeshVerticesQuaternion(rotation);
+    }
+
+    public void SetSlerp(Quat slerpStart, Quat slerpTarget, MyVector3 eulerAngles)
     {
         this.slerpStart = slerpStart;
         this.slerpTarget = slerpTarget;
+
+        rotation = eulerAngles;
+        OnRotated?.Invoke(rotation);
     }
 
     public void SimpleSlerp(float t)
@@ -230,43 +246,17 @@ public class MyTransform : MonoBehaviour
         UpdateTransform();
     }
 
-    public void Slerp(MyVector3 startAngles, MyVector3 endAngles, float t)
-    {
-        startAngles = Quat.GetValidEulerAngles(startAngles);
-        endAngles = Quat.GetValidEulerAngles(endAngles);
+    //public void Slerp(MyVector3 startAngles, MyVector3 endAngles, float t)
+    //{
+    //    startAngles = Quat.GetValidEulerAngles(startAngles);
+    //    endAngles = Quat.GetValidEulerAngles(endAngles);
 
-        Quat startRotation = GetTotalEulerRotation(startAngles);
-        Quat endRotation = GetTotalEulerRotation(endAngles);
+    //    Quat startRotation = GetTotalEulerRotation(startAngles);
+    //    Quat endRotation = GetTotalEulerRotation(endAngles);
 
-        rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(Quat.Slerp(startRotation, endRotation, t));
-        UpdateTransform();
-    }
-
-    /// <summary>
-    /// Returns the resulting quaternion rotation from the given euler angles
-    /// </summary>
-    /// <param name="eulerAngles"></param>
-    /// <param name="isNormalised"></param>
-    /// <returns></returns>
-    private Quat GetTotalEulerRotation(MyVector3 eulerAngles, bool isNormalised = true)
-    {
-        this.rotation = eulerAngles;
-
-        eulerAngles = Quat.GetValidEulerAngles(GetRotationRadians());
-
-        Quat xRotation = new Quat(eulerAngles.x, MyVector3.Right);
-        Quat yRotation = new Quat(eulerAngles.y, MyVector3.Up);
-        Quat zRotation = new Quat(eulerAngles.z, MyVector3.Forward);
-
-        // Check
-        Quat rotation = zRotation * yRotation * xRotation;
-        if (isNormalised)
-        {
-            rotation = rotation.NormalizeQuat();
-        }
-
-        return rotation;
-    }
+    //    rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(Quat.Slerp(startRotation, endRotation, t));
+    //    UpdateTransform();
+    //}
 
     private void SetMeshVerticesQuaternion(Quat quat)
     {
@@ -294,6 +284,7 @@ public class MyTransform : MonoBehaviour
     public void SetScale(MyVector3 newScale)
     {
         scale = newScale;
+        OnScaled?.Invoke(scale);
         scaleMatrix.SetIdentityValues(newScale);
         UpdateTransform();
     }

@@ -47,10 +47,12 @@ public class ItemRotator : MonoBehaviour
         switch (rotationType)
         {
             case SettingsManager.RotationType.Degrees:
+                degreeRotation.UpdateEulerAngles(currentRotator.GetEulers());
                 currentRotator = degreeRotation;
                 break;
 
             case SettingsManager.RotationType.Quaternion:
+                quaternionRotation.UpdateEulerAngles(currentRotator.GetEulers());
                 currentRotator = quaternionRotation;
                 break;
 
@@ -71,9 +73,8 @@ public class ItemRotator : MonoBehaviour
 
     public void SetItemOrientationToTop()
     {
-        // quaternionRotation.SetSlerping((MyVector3.Up * 180) * -1);
-
-        quaternionRotation.SetSlerp();
+        MyVector3 topOrientation = new MyVector3(MyMathsLibrary.DegreesToRadians(90), 0, 0);
+        quaternionRotation.SetSlerp(topOrientation);
     }
 
     #endregion
@@ -83,4 +84,6 @@ public interface IItemRotator
 {
     void OnRotateUpdate();
     void SetRotationTarget(MyTransform transform);
+    void UpdateEulerAngles(MyVector3 eulerAngles);
+    MyVector3 GetEulers();
 }

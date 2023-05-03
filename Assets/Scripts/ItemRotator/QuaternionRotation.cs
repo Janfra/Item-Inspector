@@ -38,12 +38,26 @@ public class QuaternionRotation : IItemRotator
         this.transform = transform;
     }
 
-    public void SetSlerp()
+    public void UpdateEulerAngles(MyVector3 eulerAngles)
     {
-        Quat start = new Quat(slerpStart.x, MyVector3.Right);
-        Quat target = new Quat(slerpTarget.x, MyVector3.Right);
+        this.eulerAngles = MyMathsLibrary.VectorDegreeValuesToRadians(eulerAngles);
+    }
 
-        transform.SetSlerp(start, target);
+    public MyVector3 GetEulers()
+    {
+        return eulerAngles;
+    }
+
+    public void SetSlerp(MyVector3 eulerAngles)
+    {
+        Quat start = Quat.EulerToQuaternion(transform.Rotation, false);
+        Quat target = Quat.EulerToQuaternion(eulerAngles, false);
+
+        slerpStart = transform.Rotation;
+        slerpTarget = eulerAngles;
+
+        transform.SetSlerp(start, target, eulerAngles);
+        this.eulerAngles = eulerAngles;
         isSlerping = true;
     }
 
@@ -60,20 +74,19 @@ public class QuaternionRotation : IItemRotator
         }
     }
 
-    public void SlerpObject()
-    {
-        slerpTime += SettingsManager.Instance.GetTime();
-        float progress = SettingsManager.Instance.GetInterpolationAlpha(slerpTime, SLERP_DURATION);
-        transform.Slerp(MyMathsLibrary.VectorDegreeValuesToRadians(slerpStart), MyMathsLibrary.VectorDegreeValuesToRadians(slerpTarget), progress);
+    //public void SlerpObject()
+    //{
+    //    slerpTime += SettingsManager.Instance.GetTime();
+    //    float progress = SettingsManager.Instance.GetInterpolationAlpha(slerpTime, SLERP_DURATION);
+    //    transform.Slerp(MyMathsLibrary.VectorDegreeValuesToRadians(slerpStart), MyMathsLibrary.VectorDegreeValuesToRadians(slerpTarget), progress);
 
-        if (progress == 1)
-        {
-            isSlerping = false;
-            slerpTime = 0.0f;
-        }
-    }
+    //    if (progress == 1)
+    //    {
+    //        isSlerping = false;
+    //        slerpTime = 0.0f;
+    //    }
+    //}
 
-    // QUATERNION NOT SELECTED FREEZES ROTATION
     public void SetSlerping(MyVector3 slerpTarget, MyVector3 slerpStart, bool isSlerping = true)
     {
         if(transform == null)

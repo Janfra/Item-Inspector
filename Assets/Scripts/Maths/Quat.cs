@@ -17,7 +17,7 @@ namespace MyMathsComponents
         public Quat()
         {
             w = 0.0f;
-            v = new MyVector3();
+            v = new MyVector3(MyMathsLibrary.ZERO_IN_RADIANS, MyMathsLibrary.ZERO_IN_RADIANS, MyMathsLibrary.ZERO_IN_RADIANS);
         }
 
         public Quat(float wValue)
@@ -43,8 +43,11 @@ namespace MyMathsComponents
 
         #endregion
 
+        #region Shorthands
         public static Quat IdentityMultiplication { get { return new Quat(1.0f); } }
         public static Quat IdentityAddition { get { return new Quat(); } }
+
+        #endregion
 
         #region Operators
 
@@ -93,7 +96,7 @@ namespace MyMathsComponents
         /// <param name="eulerAngles"></param>
         /// <param name="isNormalised"></param>
         /// <returns></returns>
-        public static Quat EulerToQuaternion(MyVector3 eulerAngles, bool isNormalised = true)
+        public static Quat EulerToQuaternionNoMultiplication(MyVector3 eulerAngles)
         {
             Quat rv = new Quat();
 
@@ -115,6 +118,29 @@ namespace MyMathsComponents
             rv.v.x = sr * cpcy - cr * spsy;
             rv.v.y = cr * sp * cy + sr * cp * sy;
             rv.v.z = cr * cp * sy - sr * sp * cy;
+
+            return rv;
+        }
+
+        /// <summary>
+        /// Returns the resulting quaternion rotation from the given euler angles
+        /// </summary>
+        /// <param name="eulerAngles"></param>
+        /// <param name="isNormalised"></param>
+        /// <returns></returns>
+        public static Quat EulerToQuaternion(MyVector3 eulerAngles, bool isNormalised = true)
+        {
+            eulerAngles = GetValidEulerAngles(eulerAngles);
+
+            Quat xRotation = new Quat(eulerAngles.x, MyVector3.Right);
+            Quat yRotation = new Quat(eulerAngles.y, MyVector3.Up);
+            Quat zRotation = new Quat(eulerAngles.z, MyVector3.Forward);
+
+            Quat rv = zRotation * yRotation * xRotation;
+            if (isNormalised)
+            {
+                rv = rv.NormalizeQuat();
+            }
 
             return rv;
         }

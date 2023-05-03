@@ -54,6 +54,17 @@ public class DegreeRotation : IItemRotator
         this.transform = transform;
     }
 
+    public void UpdateEulerAngles(MyVector3 eulerAngles)
+    {
+        pitchRotation = MyMathsLibrary.RadiansToDegrees(eulerAngles.x);
+        yawRotation = MyMathsLibrary.RadiansToDegrees(eulerAngles.y);
+    }
+
+    public MyVector3 GetEulers()
+    {
+        return new MyVector3(pitchRotation, yawRotation);
+    }
+
     /// <summary>
     /// Checks to set the rotation of the object based on mouse input
     /// </summary>

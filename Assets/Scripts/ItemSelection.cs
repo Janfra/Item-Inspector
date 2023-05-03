@@ -10,6 +10,7 @@ public class ItemSelection : MonoBehaviour
 {
     public static Action OnTransitionCompleted;
     public static Action OnTransition;
+    public static Action OnDeselected;
 
     [Header("References")]
     [SerializeField]
@@ -119,6 +120,7 @@ public class ItemSelection : MonoBehaviour
         itemRotator.SetRotationTarget(null);
         selectedItem.MoveToPosition(initialPosition, ClearSelectedItem);
         OnTransition?.Invoke();
+        OnDeselected?.Invoke();
     }
 
     private void ClearSelectedItem()
