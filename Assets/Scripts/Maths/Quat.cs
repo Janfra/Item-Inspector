@@ -17,13 +17,13 @@ namespace MyMathsComponents
         public Quat()
         {
             w = 0.0f;
-            v = new MyVector3(MyMathsLibrary.ZERO_IN_RADIANS, MyMathsLibrary.ZERO_IN_RADIANS, MyMathsLibrary.ZERO_IN_RADIANS);
+            v = new MyVector3();
         }
 
         public Quat(float wValue)
         {
             w = wValue;
-            v = new MyVector3(MyMathsLibrary.ZERO_IN_RADIANS, MyMathsLibrary.ZERO_IN_RADIANS, MyMathsLibrary.ZERO_IN_RADIANS);
+            v = new MyVector3();
         }
 
         public Quat(float Angle, MyVector3 Axis)
@@ -55,7 +55,7 @@ namespace MyMathsComponents
         {
             Quat rv = new Quat();
 
-            rv.w = lhs.w * rhs.w - MyVector3.VectorDotProduct(rhs.v, lhs.v);
+            rv.w = lhs.w * rhs.w - MyVector3.VectorDotProduct(rhs.v, lhs.v, false);
             rv.v = rhs.w * lhs.v + lhs.w * rhs.v + MyMathsLibrary.VectorCrossProduct(lhs.v, rhs.v);
 
             return rv;
@@ -130,7 +130,7 @@ namespace MyMathsComponents
         /// <returns></returns>
         public static Quat EulerToQuaternion(MyVector3 eulerAngles, bool isNormalised = true)
         {
-            eulerAngles = GetValidEulerAngles(eulerAngles);
+            // eulerAngles = GetValidEulerAngles(eulerAngles);
 
             Quat xRotation = new Quat(eulerAngles.x, MyVector3.Right);
             Quat yRotation = new Quat(eulerAngles.y, MyVector3.Up);

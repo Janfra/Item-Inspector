@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class ItemRotator : MonoBehaviour
 {
+    public MyVector3 eulerAngles;
+
     [Header("Components")]
     [SerializeField]
     private DegreeRotation degreeRotation;

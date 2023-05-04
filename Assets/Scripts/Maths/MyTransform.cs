@@ -21,7 +21,7 @@ public class MyTransform : MonoBehaviour
     [SerializeField]
     private MeshFilter MF;
     [SerializeField]
-    private Mesh sharedMesh;
+    private Mesh originalMesh;
 
     [Header("Config")]
     [SerializeField]
@@ -39,9 +39,12 @@ public class MyTransform : MonoBehaviour
     private Quat slerpStart;
     private Quat slerpTarget;
 
-    private void Awake()
+    private void Start()
     {
-        GetModelVertices();
+        if (modelVertices == null || modelVertices.Length == 0 && originalMesh != null)
+        {
+            GetModelVertices();
+        }
         SetValues(scale, rotation, translate);
     }
 
@@ -58,20 +61,15 @@ public class MyTransform : MonoBehaviour
             MF = GetComponent<MeshFilter>();
         }
 
-        if (modelVertices == null || modelVertices.Length == 0)
+        if (modelVertices == null || modelVertices.Length == 0 && originalMesh != null)
         {
             GetModelVertices();
         }
 
-        if (MF.sharedMesh != null && modelVertices != null && modelVertices.Length != 0)
+        if (modelVertices != null && modelVertices.Length != 0 && originalMesh != null)
         {
             SetValues(scale, GetRotationRadians(), translate);
         }
-        else if (MF != null && sharedMesh == null)
-        {
-            sharedMesh = MF.mesh;
-        }
-
     }
 
     #region Constructors
@@ -116,9 +114,11 @@ public class MyTransform : MonoBehaviour
 
     public void GetModelVertices()
     {
-        if (MF != null && sharedMesh != null)
+        MF = GetComponent<MeshFilter>();
+
+        if (MF != null && originalMesh != null)
         {
-            MF.sharedMesh = Instantiate(sharedMesh);
+            MF.sharedMesh = Instantiate(originalMesh);
             modelVertices = new MyVector3[MF.sharedMesh.vertexCount];
             for (int i = 0; i < MF.sharedMesh.vertexCount; i++)
             {
@@ -127,7 +127,7 @@ public class MyTransform : MonoBehaviour
         }
         else
         {
-            Debug.LogError("No Mesh filter or Shared Mesh set");
+            Debug.LogError("No Original Mesh set");
         }
     }
 
