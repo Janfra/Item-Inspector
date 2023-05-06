@@ -41,7 +41,7 @@ public class MyTransform : MonoBehaviour
 
     private void Start()
     {
-        if (modelVertices == null || modelVertices.Length == 0 && originalMesh != null)
+        if ((modelVertices == null || modelVertices.Length == 0) && originalMesh != null)
         {
             GetModelVertices();
         }
@@ -124,10 +124,6 @@ public class MyTransform : MonoBehaviour
             {
                 modelVertices[i] = new MyVector3(MF.sharedMesh.vertices[i]);
             }
-        }
-        else
-        {
-            Debug.LogError("No Original Mesh set");
         }
     }
 
@@ -239,24 +235,18 @@ public class MyTransform : MonoBehaviour
         OnRotated?.Invoke(rotation);
     }
 
-    public void SimpleSlerp(float t)
+    public void SlerpToTarget(float t)
     {
-        Debug.Log(t);
+        // If no changes are going to be made, return
+        if (slerpStart == slerpTarget)
+        {
+            return;
+        }
+
+        // Debug.Log(t);
         rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(Quat.Slerp(slerpStart, slerpTarget, t));
         UpdateTransform();
     }
-
-    //public void Slerp(MyVector3 startAngles, MyVector3 endAngles, float t)
-    //{
-    //    startAngles = Quat.GetValidEulerAngles(startAngles);
-    //    endAngles = Quat.GetValidEulerAngles(endAngles);
-
-    //    Quat startRotation = GetTotalEulerRotation(startAngles);
-    //    Quat endRotation = GetTotalEulerRotation(endAngles);
-
-    //    rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(Quat.Slerp(startRotation, endRotation, t));
-    //    UpdateTransform();
-    //}
 
     private void SetMeshVerticesQuaternion(Quat quat)
     {
@@ -277,6 +267,7 @@ public class MyTransform : MonoBehaviour
         }
 
         MF.sharedMesh.vertices = newVertices.ToArray();
+        RecalculateMesh();
     }
 
     #endregion
@@ -318,6 +309,13 @@ public class MyTransform : MonoBehaviour
         }
 
         MF.sharedMesh.vertices = newVertices.ToArray();
+        RecalculateMesh();
+    }
+
+    private void RecalculateMesh()
+    {
+        MF.sharedMesh.RecalculateNormals();
+        MF.sharedMesh.RecalculateTangents();
     }
 
     #region Testing
@@ -340,3 +338,19 @@ public interface IMyColliderUpdate
 {
     void UpdateColliderCentre(MyVector3 transformPosition);
 }
+
+#region OUTDATED
+
+//public void Slerp(MyVector3 startAngles, MyVector3 endAngles, float t)
+//{
+//    startAngles = Quat.GetValidEulerAngles(startAngles);
+//    endAngles = Quat.GetValidEulerAngles(endAngles);
+
+//    Quat startRotation = GetTotalEulerRotation(startAngles);
+//    Quat endRotation = GetTotalEulerRotation(endAngles);
+
+//    rotationMatrix = Matrix4By4.QuaternionToRotationMatrix(Quat.Slerp(startRotation, endRotation, t));
+//    UpdateTransform();
+//}
+
+#endregion

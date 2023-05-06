@@ -9,7 +9,9 @@ public class QuaternionRotation : IItemRotator
     MyTransform transform;
 
     [SerializeField]
-    private MyVector3 eulerAngles;
+    private MyVector3 radiansRotation;
+    private MyVector3 rotationOffset = new MyVector3();
+
     [SerializeField]
     private MyVector3 axis;
 
@@ -29,9 +31,10 @@ public class QuaternionRotation : IItemRotator
 
     #endregion
 
-    public void OnRotateUpdate()
+    public void OnRotateUpdate(MyVector3 eulerAngles)
     {
-        transform.SetQuatRotation(eulerAngles, true);
+        UpdateEulerAngles(eulerAngles);
+        transform.SetQuatRotation(radiansRotation, true);
     }
 
     public void SetRotationTarget(MyTransform transform)
@@ -41,76 +44,98 @@ public class QuaternionRotation : IItemRotator
 
     public void UpdateEulerAngles(MyVector3 eulerAngles)
     {
-        this.eulerAngles = MyMathsLibrary.VectorDegreeValuesToRadians(eulerAngles);
+        //MyVector3 offsetMultiplier = eulerAngles.NormalizeVector();
+        //rotationOffset.x = ROTATION_OFFSET * MyMathsLibrary.RoundUp(offsetMultiplier.x);
+        //rotationOffset.y = ROTATION_OFFSET * MyMathsLibrary.RoundUp(offsetMultiplier.y);
+        //rotationOffset.z = ROTATION_OFFSET * MyMathsLibrary.RoundUp(offsetMultiplier.z);
+
+        radiansRotation = MyMathsLibrary.VectorDegreeValuesToRadians(eulerAngles);
     }
 
     public MyVector3 GetEulers()
     {
-        return eulerAngles;
+        return radiansRotation;
     }
 
-    public void SetSlerp(MyVector3 eulerAngles)
+    public void SetSlerp(MyVector3 eulerAngles, MyVector3 currentRotation)
     {
-        Quat start = Quat.EulerToQuaternion(transform.Rotation, false);
-        Quat target = Quat.EulerToQuaternion(eulerAngles, false);
+        // If no changes are going to be made, return
+        if(eulerAngles == currentRotation)
+        {
+            return;
+        }
+
+        UpdateEulerAngles(currentRotation);
+        MyVector3 targetRotation = MyMathsLibrary.VectorDegreeValuesToRadians(eulerAngles);
+
+        Quat start = Quat.EulerToQuaternion(radiansRotation, false);
+        Quat target = Quat.EulerToQuaternion(targetRotation, false);
 
         slerpStart = transform.Rotation;
         slerpTarget = eulerAngles;
 
         transform.SetSlerp(start, target, eulerAngles);
-        this.eulerAngles = eulerAngles;
+        radiansRotation = eulerAngles;
         isSlerping = true;
+        slerpTime = 0.0f;
     }
 
-    public void SimpleSlerp()
+    public void SlerpToTarget()
     {
         slerpTime += SettingsManager.Instance.GetTime();
         slerpTime = Mathf.Clamp01(slerpTime);
 
-        transform.SimpleSlerp(slerpTime);
+        transform.SlerpToTarget(slerpTime);
         if(slerpTime == 1)
         {
             isSlerping = false;
             slerpTime = 0.0f;
         }
     }
-
-    //public void SlerpObject()
-    //{
-    //    slerpTime += SettingsManager.Instance.GetTime();
-    //    float progress = SettingsManager.Instance.GetInterpolationAlpha(slerpTime, SLERP_DURATION);
-    //    transform.Slerp(MyMathsLibrary.VectorDegreeValuesToRadians(slerpStart), MyMathsLibrary.VectorDegreeValuesToRadians(slerpTarget), progress);
-
-    //    if (progress == 1)
-    //    {
-    //        isSlerping = false;
-    //        slerpTime = 0.0f;
-    //    }
-    //}
-
-    public void SetSlerping(MyVector3 slerpTarget, MyVector3 slerpStart, bool isSlerping = true)
-    {
-        if(transform == null)
-        {
-            return;
-        }
-
-        this.slerpTarget = slerpTarget;
-        this.slerpStart = slerpStart;
-        this.isSlerping = isSlerping;
-        slerpTime = 0.0f;
-    }
-
-    public void SetSlerping(MyVector3 slerpTarget, bool isSlerping = true)
-    {
-        if(transform == null)
-        {
-            return;
-        }
-
-        slerpStart = transform.Rotation;
-        this.slerpTarget = slerpTarget;
-        this.isSlerping = isSlerping;
-        slerpTime = 0.0f;
-    }
 }
+
+#region OUTDATED
+
+//private const float ROTATION_OFFSET = 280f;
+
+//public void SlerpObject()
+//{
+//    slerpTime += SettingsManager.Instance.GetTime();
+//    float progress = SettingsManager.Instance.GetInterpolationAlpha(slerpTime, SLERP_DURATION);
+//    transform.Slerp(MyMathsLibrary.VectorDegreeValuesToRadians(slerpStart), MyMathsLibrary.VectorDegreeValuesToRadians(slerpTarget), progress);
+
+//    if (progress == 1)
+//    {
+//        isSlerping = false;
+//        slerpTime = 0.0f;
+//    }
+//}
+
+
+//public void SetSlerping(MyVector3 slerpTarget, MyVector3 slerpStart, bool isSlerping = true)
+//{
+//    if (transform == null)
+//    {
+//        return;
+//    }
+
+//    this.slerpTarget = slerpTarget;
+//    this.slerpStart = slerpStart;
+//    this.isSlerping = isSlerping;
+//    slerpTime = 0.0f;
+//}
+
+//public void SetSlerping(MyVector3 slerpTarget, bool isSlerping = true)
+//{
+//    if (transform == null)
+//    {
+//        return;
+//    }
+
+//    slerpStart = transform.Rotation;
+//    this.slerpTarget = slerpTarget;
+//    this.isSlerping = isSlerping;
+//    slerpTime = 0.0f;
+//}
+
+#endregion

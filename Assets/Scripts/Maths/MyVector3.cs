@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 
 namespace MyMathsComponents
@@ -161,6 +162,13 @@ namespace MyMathsComponents
             return rv;
         }
 
+        /// <summary>
+        /// Checks the lenghts of two vectors
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="canBeEqual">If true return if a is smaller or equal, otherwise must be smaller</param>
+        /// <returns></returns>
         public static bool CompareVectorsLenght(MyVector3 a, MyVector3 b, bool canBeEqual = false)
         {
             // Get their lenghts without using sqrt function for performance
@@ -174,6 +182,17 @@ namespace MyMathsComponents
                 bool isASmallerOrEqual = a.GetLenghtSq() <= b.GetLenghtSq();
                 return isASmallerOrEqual;
             }
+        }
+
+        /// <summary>
+        /// Checks if two vectors have exactly the same values
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool CompareVectorsValues(MyVector3 a, MyVector3 b)
+        {
+            return a.x == b.x && a.y == b.y && a.z == b.z;
         }
 
         public static MyVector3 operator +(MyVector3 lhs, MyVector3 rhs)
@@ -240,6 +259,16 @@ namespace MyMathsComponents
         public static bool operator <=(MyVector3 smallerVector, MyVector3 biggerVector)
         {
             return CompareVectorsLenght(smallerVector, biggerVector, true);
+        }
+
+        public static bool operator ==(MyVector3 lhs, MyVector3 rhs)
+        {
+            return CompareVectorsValues(lhs, rhs);
+        }
+
+        public static bool operator !=(MyVector3 lhs, MyVector3 rhs)
+        {
+            return CompareVectorsValues(lhs, rhs);
         }
 
         #endregion
@@ -368,6 +397,16 @@ namespace MyMathsComponents
             rv = $"X: {x}, Y: {y}, Z: {z}";
 
             return rv;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is MyVector3;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(x, y, z);
         }
     }
 }

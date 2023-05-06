@@ -399,7 +399,7 @@ namespace MyMathsComponents
             rv.values[1, 2] = 2 * (v.y * v.z + v.x * quat.w);
             rv.values[2, 2] = 1 - 2 * (v.x * v.x + v.y * v.y);
 
-            // rv = rv.RotationInverse();
+            rv = rv.RotationInverse();
 
             return rv;
 

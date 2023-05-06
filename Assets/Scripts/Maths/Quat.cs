@@ -64,7 +64,7 @@ namespace MyMathsComponents
         #endregion
 
         /// <summary>
-        /// Turns any values that are 0 to a positive equivalent to avoid the model disappearing
+        /// Turns any values that are 0 to a positive equivalent
         /// </summary>
         /// <param name="eulerAngles"></param>
         /// <returns></returns>
@@ -130,8 +130,6 @@ namespace MyMathsComponents
         /// <returns></returns>
         public static Quat EulerToQuaternion(MyVector3 eulerAngles, bool isNormalised = true)
         {
-            // eulerAngles = GetValidEulerAngles(eulerAngles);
-
             Quat xRotation = new Quat(eulerAngles.x, MyVector3.Right);
             Quat yRotation = new Quat(eulerAngles.y, MyVector3.Up);
             Quat zRotation = new Quat(eulerAngles.z, MyVector3.Forward);

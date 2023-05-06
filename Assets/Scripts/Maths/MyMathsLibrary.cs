@@ -6,6 +6,16 @@ namespace MyMathsComponents
     {
         public const float ZERO_IN_RADIANS = 6.28318530718f;
 
+        public static int RoundUp(float value)
+        {
+            int intValue = (int)value;
+            if(value > intValue)
+            {
+                return intValue + 1;
+            }
+            return intValue;
+        }
+
         public static float Vector2ToRadians(MyVector2 vector)
         {
             float rv = 0.0f;
@@ -139,7 +149,7 @@ namespace MyMathsComponents
         }
 
         /// <summary>
-        /// Changes a vector values from degrees to radians.
+        /// Changes a vector values from degrees to radians and returns a new vector.
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
