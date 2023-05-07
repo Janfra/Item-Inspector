@@ -60,7 +60,7 @@ public class QuaternionRotation : IItemRotator
     public void SetSlerp(MyVector3 eulerAngles, MyVector3 currentRotation)
     {
         // If no changes are going to be made, return
-        if(eulerAngles == currentRotation)
+        if(eulerAngles == currentRotation || transform == null)
         {
             return;
         }

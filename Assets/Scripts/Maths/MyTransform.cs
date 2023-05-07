@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 [ExecuteInEditMode]
 public class MyTransform : MonoBehaviour
 {
+    public event Action<Mesh> OnMeshReady;
     public event Action<MyVector3> OnTranslated;
     public event Action<MyVector3> OnRotated;
     public event Action<MyVector3> OnScaled;
@@ -46,12 +47,21 @@ public class MyTransform : MonoBehaviour
             GetModelVertices();
         }
         SetValues(scale, rotation, translate);
+        OnMeshReady?.Invoke(MF.sharedMesh);
     }
 
     private void OnEnable()
     {
         OnTranslated?.Invoke(translate);
         Debug.Log(GetRightAxis());
+    }
+
+    private void OnDisable()
+    {
+        OnMeshReady = null;
+        OnRotated = null;
+        OnScaled = null;
+        OnTranslated = null;
     }
 
     private void OnValidate()
