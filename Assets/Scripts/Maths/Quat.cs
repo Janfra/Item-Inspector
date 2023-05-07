@@ -134,7 +134,7 @@ namespace MyMathsComponents
             Quat yRotation = new Quat(eulerAngles.y, MyVector3.Up);
             Quat zRotation = new Quat(eulerAngles.z, MyVector3.Forward);
 
-            Quat rv = zRotation * yRotation * xRotation;
+            Quat rv = yRotation * (xRotation * zRotation);
             if (isNormalised)
             {
                 rv = rv.NormalizeQuat();
